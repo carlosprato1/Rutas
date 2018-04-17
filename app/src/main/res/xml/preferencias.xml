@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <PreferenceCategory
+      android:key="servidor"
+      android:title="Conexion con el Servidor">
+
+    <EditTextPreference
+        android:key="ET_URL"
+        android:title="URL del Servidor"
+        android:summary="Direccion URL del Servidor"
+        android:dialogTitle="URL:"
+        ></EditTextPreference>
+
+    <EditTextPreference
+        android:key="ET_NIU"
+        android:title="Identificacion (NIU)"
+        android:summary="Nombre de identificacion Unico"
+        android:dialogTitle="NIU:"
+        ></EditTextPreference>
+
+    <ListPreference
+      android:key="LP_periodo"
+      android:title="Periodo de reporte"
+        android:summary="tiempo de envio de ubicacion al servidor"
+        android:entries="@array/periodo"
+        android:dialogTitle="Periodo de reporte (min): "
+        android:entryValues="@array/cod_periodo"
+        android:defaultValue="1"
+      ></ListPreference>
+  </PreferenceCategory>
+
+  <PreferenceCategory
+      android:key="NUnidad"
+      android:title="Numero de Unidad">
+
+    <EditTextPreference
+        android:key="ET_Unidad"
+        android:title="Numero de Unindad"
+        android:summary="Numero de Vehiculo/Unidad"
+        android:dialogTitle="Numero de Unidad:"
+        android:numeric="integer"
+        ></EditTextPreference>
+  </PreferenceCategory>
+
+  <PreferenceCategory
+      android:key="Respaldo"
+      android:title="Respaldo en Memoria Interna">
+
+    <SwitchPreference
+      android:key="S_respaldo"
+      android:title="Respaldo De Reporte de Ubicacion"
+      android:summary="Repaldo de ubicacion en memoria interna"
+        android:defaultValue="true"
+      ></SwitchPreference>
+
+
+  </PreferenceCategory>
+
+
+
+</PreferenceScreen>
