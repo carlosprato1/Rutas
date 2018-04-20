@@ -11,7 +11,7 @@ import android.util.Log;
 
 
 public class preferencias extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
-    private static Integer CONVERSION_MIN_MS = 25000; // min->ms
+    private static Integer CONVERSION_MIN_MS = 60000; // min->ms
 
     private int LP_periodoAux;
     SharedPreferences preferencias;
@@ -47,6 +47,12 @@ public class preferencias extends PreferenceActivity implements SharedPreference
                 editor.putString("estadoConfig", "Por Verificar");
                 editor.putString("estadoDATAJSON","Primera");//borrarjson MENSAJE
             }
+        }
+
+
+
+        if (android.os.Build.VERSION.SDK_INT <= 18) {//jellyBean
+        } else {
         }
 
         if ("LP_periodo".equals(key) && preferenciaschange.getBoolean("estadoServicio",true)){

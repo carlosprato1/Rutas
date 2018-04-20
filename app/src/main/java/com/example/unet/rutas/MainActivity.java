@@ -5,14 +5,18 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
      Switch switche;
      int periodo;
      ////////////CONSTANTES CONFIGURAR///////////////////////
-     private static Integer LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER = 50000; // ms
-     private static Integer CONVERSION_MIN_MS = 25000; // min->ms
+     private static Integer LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER = 120000; // ms
+     private static Integer CONVERSION_MIN_MS = 60000; // min->ms
      ////////////////////////////////////////////////////////
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,6 +99,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
        super.onResume();
         refrescarIU();
+
+        LocationManager GPSStatus = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        assert GPSStatus != null;
+        if (!GPSStatus.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("GPS Deshabilitado")
+                    .setCancelable(false)
+                    .setPositiveButton("Habilitar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(intent);
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+
     }
 
     @SuppressLint("ResourceAsColor")
@@ -143,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         if(switche.isChecked()){
            if(verificarGoogleService() && !"Por Completar".equals(preferencias.getString("estadoConfig","Por Completar")) && !"Incorrecto".equals(preferencias.getString("estadoConfig","Por Completar"))){
                editor.putBoolean("estadoServicio", true);
+               switche.setText("Encendido");
                if(periodo > LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER) {
                    Context context = getApplicationContext();
                    startAlarmManager(context,periodo);
@@ -150,13 +172,18 @@ public class MainActivity extends AppCompatActivity {
                    startService(new Intent(this, Myservice.class));
              }
 
-           }else{switche.setChecked(false);}
+           }else{
+
+               switche.setChecked(false);
+               Toast.makeText(this.getApplicationContext(), "swithe: "+switche.isChecked(), Toast.LENGTH_SHORT).show();
+           }
         }else{
             editor.putBoolean("estadoServicio",false);
            // stopService(new Intent(this,Myservice.class));//OnDestroy
             if(periodo > LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER){
                 Context context = getApplicationContext();
                 cancelAlarmManager(context);
+                switche.setText("Apagado");
             }
         }
         editor.apply();

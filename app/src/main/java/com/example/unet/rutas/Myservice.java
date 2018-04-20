@@ -53,7 +53,8 @@ import java.util.TimeZone;
 
 //cambio de config: Periodo: estadoServicio=false y stop AlarmManager
 //                  NIU,URL,Unidad: si Temporal Borrar.
-//////////////////LISTO//////////////////////
+///////------colocar para que rastre solo cuando esta en un carro detecteActivity.
+//
 ////----------Estado del Equipo------------///Para luego ahora probar
 //broadcast: encendido, apagado y bateria en otro servicio? o hacerlo por un Thread...
 
@@ -68,8 +69,8 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
  //--------Preferencias-------------------
     /////////////CONSTANTES//////////////////
- private static Integer LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER = 50000; // ms
- private static Integer CONVERSION_MIN_MS = 25000; // min->ms
+ private static Integer LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER = 120000; // ms
+ private static Integer CONVERSION_MIN_MS = 60000; // min->ms
     /////////////////////////////////////////
     SharedPreferences preferencias;
     private String URLServer = "cualquiera";
@@ -103,6 +104,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     public void onCreate(){
         Log.e(TAG, "Oncreate");
         preferencias = PreferenceManager.getDefaultSharedPreferences(this);
+
 
     }
     @Override
@@ -200,20 +202,24 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         estadoServicio = preferencias.getBoolean("estadoServicio",false);
 
     }
+
     protected void ConectarGoogleAPICient(){
+
+
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         int result = googleAPI.isGooglePlayServicesAvailable(this);
         if (result != 0){
             //Servicio de Google no disponible
         }else{
-            googleApiClient = (new GoogleApiClient.Builder(this))
-                                    .addApi(LocationServices.API)
-                                    .addConnectionCallbacks(this)
-                                    .addOnConnectionFailedListener(this)
-                                    .build();
-            if(!googleApiClient.isConnected()){
-                googleApiClient.connect();
-            }
+
+           googleApiClient = (new GoogleApiClient.Builder(this))
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+                if (!googleApiClient.isConnected() || !googleApiClient.isConnecting()) {
+                    googleApiClient.connect();
+                }
         }
     }
 
@@ -225,17 +231,20 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         locationrequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         if(ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == 0 || ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_COARSE_LOCATION") == 0) {
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationrequest, this);
+        }else{
+            //Permiso Denegado
         }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Toast.makeText(this.getApplicationContext(), "onConnectionSuspended", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(this.getApplicationContext(), "onConnectionFailed", Toast.LENGTH_SHORT).show();
+        stopLocationUpdates();
     }
 
     @Override
@@ -252,9 +261,9 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                 ArmarJSON();
                 clientHTTP_POST();
                 //SegundoHilo trabajando
-
             }
         }else{
+
            if (location.getAccuracy() < 30.0F) {
                TomarDistancia(location);
                if (Distancia >= 20.0F) {
@@ -262,13 +271,26 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                    ArmarJSON();
                    clientHTTP_POST();
                    //SegundoHilo trabajando
+               }else{ //si la distancia es menor "parado"
+                  // Toast.makeText(this.getApplicationContext(), "Distancia: "+Distancia, Toast.LENGTH_SHORT).show();
+                   stopLocationUpdates();
+                   TerminoSegundoHilo();//caso: distancia corta
                }
+
            }
         }
     }
 
+    protected void TomarDistancia(Location location){
+        Location ubicacionAnterior = new Location ("");
+        ubicacionAnterior.setLatitude((double)preferencias.getFloat("LatitudAnterior",0.0F));
+        ubicacionAnterior.setLongitude((double)preferencias.getFloat("LongitudAnterior",0.0F));
+        Distancia = location.distanceTo(ubicacionAnterior);
+    }
+
     public void ObtenerdatosUbicacion(Location location){
         stopLocationUpdates();
+
         SharedPreferences.Editor editor = preferencias.edit();
         editor.putFloat("LatitudAnterior", (float)location.getLatitude());
         editor.putFloat("LongitudAnterior", (float)location.getLongitude());
@@ -383,17 +405,12 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
     }
 
-    protected void TomarDistancia(Location location){
-        Location ubicacionAnterior = new Location ("");
-        ubicacionAnterior.setLatitude((double)preferencias.getFloat("LatitudAnterior",0.0F));
-        ubicacionAnterior.setLongitude((double)preferencias.getFloat("LongitudAnterior",0.0F));
-        Distancia = location.distanceTo(ubicacionAnterior);
-    }
 
     private void stopLocationUpdates() {
         //no pedir mas ubicaciones hasta volver a conectarse con googleAPIclient
         if(this.googleApiClient != null && this.googleApiClient.isConnected()) {
             this.googleApiClient.disconnect();
+          //PROblemas aqui
         }
     }
     private void ProcesarRespuestaDeServidor(String respuesta){
@@ -434,16 +451,21 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     }
     protected void TerminoSegundoHilo(){
         Log.e(TAG, "TerminoSegundoHilo");
+        if (!DescartarLLamadaDeRunnableGPSActivo){
+            stopSelf();
+        }
+
         DescartarLLamadaDeRunnableGPSActivo = false;
+        DescartarLLamadaDeAlarManagerGPSActivo=false;
       // if (Periodo > LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER){//finalizar alarmManager
 
  /*DescartarLLamadaDeAlarManagerGPSActivo=false; en el caso AlarmManager->runnable el periodo cambia
  y no destruye el servicio y esta variable permaneceria true. por lo que no se pudiera usar
  esta variable para hacer saber al runnable que el alarmManager sigue activo*/
 
-           DescartarLLamadaDeAlarManagerGPSActivo=false;
 
-            stopSelf();
+
+
 
        // }
     }
