@@ -44,6 +44,7 @@ public class preferencias extends PreferenceActivity implements SharedPreference
                editor.putString("estadoConfig","Por Completar");
         }  else {
             if("ET_URL".equals(key) || "ET_NIU".equals(key) || "ET_Unidad".equals(key)) {
+                editor.putBoolean("desasignado", false);
                 editor.putString("estadoConfig", "Por Verificar");
                 editor.putString("estadoDATAJSON","Primera");//borrarjson MENSAJE
             }

@@ -77,13 +77,6 @@ public class MainActivity extends AppCompatActivity {
         BroadcastReceiver receiver = new llamadaDelServicio();
         registerReceiver(receiver, filter);
 
-        boolean sinID = preferencias.getBoolean("sinID",true);
-        if (sinID){
-            SharedPreferences.Editor editor = preferencias.edit();
-            editor.putBoolean("sinID",false);
-            editor.putString("ID", UUID.randomUUID().toString());
-            editor.apply();
-        }
 
         switche = findViewById(R.id.SW_Servicio);
         switche.setChecked(preferencias.getBoolean("estadoServicio",false));
@@ -150,6 +143,12 @@ public class MainActivity extends AppCompatActivity {
             TV_EstConfi.setTextColor(Color.parseColor("#FF0000"));
         }
         if ("Incorrecto".equals(estadoConfig)){
+            if (preferencias.getBoolean("desasignado",false)){
+                TV_EstConfi.setText("desasignado");
+                TV_EstConfi.setTextColor(Color.parseColor("#FF0000"));
+                return;
+            }
+
             TV_EstConfi.setText(estadoConfig);
             TV_EstConfi.setTextColor(Color.parseColor("#FF0000"));
         }
@@ -175,15 +174,16 @@ public class MainActivity extends AppCompatActivity {
            }else{
 
                switche.setChecked(false);
-               Toast.makeText(this.getApplicationContext(), "swithe: "+switche.isChecked(), Toast.LENGTH_SHORT).show();
+               Toast.makeText(this.getApplicationContext(), "switche: "+switche.isChecked(), Toast.LENGTH_SHORT).show();
            }
         }else{
             editor.putBoolean("estadoServicio",false);
+            switche.setText("Apagado");
            // stopService(new Intent(this,Myservice.class));//OnDestroy
             if(periodo > LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER){
                 Context context = getApplicationContext();
                 cancelAlarmManager(context);
-                switche.setText("Apagado");
+
             }
         }
         editor.apply();

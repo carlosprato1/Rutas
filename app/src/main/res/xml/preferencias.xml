@@ -12,12 +12,7 @@
         android:dialogTitle="URL:"
         ></EditTextPreference>
 
-    <EditTextPreference
-        android:key="ET_NIU"
-        android:title="Identificacion (NIU)"
-        android:summary="Nombre de identificacion Unico"
-        android:dialogTitle="NIU:"
-        ></EditTextPreference>
+
 
     <ListPreference
       android:key="LP_periodo"
@@ -32,30 +27,27 @@
 
   <PreferenceCategory
       android:key="NUnidad"
-      android:title="Numero de Unidad">
-
+      android:title="Introduzca el NIU de la aplicacion">
+  <EditTextPreference
+      android:key="ET_NIU"
+      android:title="Identificacion (NIU)"
+      android:summary="Nombre de identificacion Unico"
+      android:dialogTitle="NIU:"
+      ></EditTextPreference>
+  </PreferenceCategory>
+  <PreferenceCategory
+      android:key="NUnidad1"
+      android:title="Introduzca numero de Vehiculo/Unidad">
     <EditTextPreference
         android:key="ET_Unidad"
-        android:title="Numero de Unindad"
+        android:title="Numero de Unidad"
         android:summary="Numero de Vehiculo/Unidad"
         android:dialogTitle="Numero de Unidad:"
         android:numeric="integer"
         ></EditTextPreference>
-  </PreferenceCategory>
-
-  <PreferenceCategory
-      android:key="Respaldo"
-      android:title="Respaldo en Memoria Interna">
-
-    <SwitchPreference
-      android:key="S_respaldo"
-      android:title="Respaldo De Reporte de Ubicacion"
-      android:summary="Repaldo de ubicacion en memoria interna"
-        android:defaultValue="true"
-      ></SwitchPreference>
+</PreferenceCategory>
 
 
-  </PreferenceCategory>
 
 
 

@@ -45,11 +45,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-//Conexion:
-//Incorrecto: actualizar IU (intent): estadoConfig,switche, estadoServicio=false, si temporal borrar.
-//correcto: actualizar IU (intent): estadoConfig. si temporal enviar, confirmar y borrar.
-//No conexion:
-//guardar temporal, limite Maximo caracteres.
 
 //cambio de config: Periodo: estadoServicio=false y stop AlarmManager
 //                  NIU,URL,Unidad: si Temporal Borrar.
@@ -79,9 +74,9 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     private int Periodo = 60000;
     private Boolean DescartarLLamadaDeAlarManagerGPSActivo = false;
     private Boolean DescartarLLamadaDeRunnableGPSActivo= false;
-    private String ID = "cualquiera";
     private String estadoConfig;
     private boolean estadoServicio;
+    private String estadoDATAJSON;
  //------DatosdeUbicacion-------------------
     private float Distancia = 0.0F;
     private String fechaGPS = "";
@@ -91,6 +86,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     Float speed;
     Float precision;
     Float direccion;
+    Integer ACC;
 
     public Myservice() {
     }
@@ -197,9 +193,10 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         URLServer = preferencias.getString("ET_URL","cualquiera");
         NIU = preferencias.getString("ET_NIU","cualquiera");
         Unidad= preferencias.getString("ET_Unidad","0");
-        ID = preferencias.getString("ID","cualquiera");
         estadoConfig = preferencias.getString("estadoConfig","correcto");
         estadoServicio = preferencias.getBoolean("estadoServicio",false);
+        estadoDATAJSON = preferencias.getString("estadoDATAJSON","NoPrimera");
+        ACC = preferencias.getInt("ACC",0);
 
     }
 
@@ -273,6 +270,14 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                    //SegundoHilo trabajando
                }else{ //si la distancia es menor "parado"
                   // Toast.makeText(this.getApplicationContext(), "Distancia: "+Distancia, Toast.LENGTH_SHORT).show();
+                  if ("Primera".equals(estadoDATAJSON) && "Por Verificar".equals(estadoConfig)){
+                      //oprtunidad de verificar en caso que se cambien la configuracion en corta distancia
+                      //esto podra lanzar varios puntos cercanos si se cambia la configuracion varias veces
+                      //sobre un mismo punto
+                      ObtenerdatosUbicacion(location);
+                      ArmarJSON();
+                      clientHTTP_POST();
+                  }
                    stopLocationUpdates();
                    TerminoSegundoHilo();//caso: distancia corta
                }
@@ -324,12 +329,12 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
             track.put("a", altitud);
             track.put("r", direccion);
             track.put("l", latitud);
-            track.put("i", ID);
             track.put("o", longitud);
             track.put("d", Distancia);
             track.put("n", NIU);
             track.put("f", fechaGPS);
             track.put("u", Unidad);
+            track.put("c", ACC);
 
             if ("Primera".equals(preferencias.getString("estadoDATAJSON","NoPrimera"))){
                 Log.e(TAG, "Primer JSON");
@@ -358,7 +363,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                 if(networkInfo != null && networkInfo.isConnected()) {
                     try {
-                        URL e = new URL(URLServer + "/interfaz/controlador/reporteUbicacion.php");
+                        URL e = new URL(URLServer + "/controlador/reporteUbicacion.php");
                         HttpURLConnection urlConnection = (HttpURLConnection)e.openConnection();
                         urlConnection.setDoOutput(true);
                         urlConnection.setRequestMethod("POST");
@@ -423,6 +428,12 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
             editor.putString("estadoConfig", respuesta);
             editor.putBoolean("estadoServicio",false);
             editor.putString("estadoDATAJSON","Primera");//BorroJson
+        }
+        if ("desasignado".equals(respuesta)){
+            editor.putString("estadoConfig", "Incorrecto");
+            editor.putBoolean("estadoServicio",false);
+            editor.putString("estadoDATAJSON","Primera");//BorroJson
+            editor.putBoolean("desasignado", true);
         }
         if ("Correcto".equals(respuesta)) {
             editor.putString("estadoConfig", respuesta);
