@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             startActivity(new Intent(this,preferencias.class));
         }
+        if (id == R.id.action_mensaje) {
+            startActivity(new Intent(this,minichat.class));
+        }
 
         return super.onOptionsItemSelected(item);
     }

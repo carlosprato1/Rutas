@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Rutas</string>
     <string name="action_settings">Configuracion</string>
+    <string name="action_mensaje">Mensajes</string>
 </resources>

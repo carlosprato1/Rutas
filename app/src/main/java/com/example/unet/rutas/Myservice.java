@@ -122,7 +122,6 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         if (Periodo <= LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER && estadoServicio ) {
             //DescartarLLamadaDeRunnableGPSActivo = false; No lo puedo hacer aqui porque cago el runnable
             //pero sin esto entra automatico en alarManager el runnable
-
                 mHandler = new Handler();
                 startRepeatingTask();
                 // MainActivity main = new MainActivity();
@@ -254,6 +253,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
             editor.putBoolean("PrimeraUbicacion",false);
             editor.apply();
             if(location.getAccuracy() < 100.0F) {
+
                 ObtenerdatosUbicacion(location);
                 ArmarJSON();
                 clientHTTP_POST();
@@ -263,17 +263,22 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
            if (location.getAccuracy() < 30.0F) {
                TomarDistancia(location);
-               if (Distancia >= 20.0F) {
-                   ObtenerdatosUbicacion(location);
-                   ArmarJSON();
-                   clientHTTP_POST();
-                   //SegundoHilo trabajando
+               if (Distancia >= 20.0F || !preferencias.getBoolean("MenjToServidor_acum", true)) {
+                   if  (preferencias.getBoolean("evitar2veces", true)) {
+                       editor.putBoolean("evitar2veces",false);
+                       editor.commit();
+                       ObtenerdatosUbicacion(location);
+                       ArmarJSON();
+                       clientHTTP_POST();
+                       //SegundoHilo trabajando
+                   }
                }else{ //si la distancia es menor "parado"
-                  // Toast.makeText(this.getApplicationContext(), "Distancia: "+Distancia, Toast.LENGTH_SHORT).show();
+
                   if ("Primera".equals(estadoDATAJSON) && "Por Verificar".equals(estadoConfig)){
                       //oprtunidad de verificar en caso que se cambien la configuracion en corta distancia
                       //esto podra lanzar varios puntos cercanos si se cambia la configuracion varias veces
                       //sobre un mismo punto
+
                       ObtenerdatosUbicacion(location);
                       ArmarJSON();
                       clientHTTP_POST();
@@ -320,7 +325,9 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     }
     protected void ArmarJSON(){
         SharedPreferences.Editor editor = preferencias.edit();
+
         JSONArray jArray = new JSONArray();
+        JSONObject DATADEF = new JSONObject();
 
         try{
             JSONObject track = new JSONObject();
@@ -343,11 +350,23 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                 String json= preferencias.getString("dataJSON","");//tomo en cuenta lo anterior
                 jArray = new JSONArray(json);
 
-                if(json.length() > 3000){Log.e(TAG, "JSON LLeno");return;}
+                if(json.length() > 30000){Log.e(TAG, "JSON LLeno");return;}
+            }
+            jArray.put(track);
+            DATADEF.put("reporteUbicacion",jArray);
+
+            if (!preferencias.getBoolean("MenjToServidor_acum", true)) {
+
+                    String mensajesToServidorString= preferencias.getString("mensajesToServidor","");
+                    JSONArray mensajesToServidor = new JSONArray(mensajesToServidorString);
+                    DATADEF.put("mensajes",mensajesToServidor);
+
             }
 
-            jArray.put(track);
+
             editor.putString("dataJSON", jArray.toString());
+            editor.putString("DATATOTAL",DATADEF.toString());
+            Log.e(TAG, "DATATOTAL: " + DATADEF.toString());
             editor.apply();
         } catch(JSONException e) {
             e.printStackTrace();
@@ -370,7 +389,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                         urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                         urlConnection.setRequestProperty("Accept", "application/json");
                         OutputStreamWriter streamWriter = new OutputStreamWriter(urlConnection.getOutputStream());
-                        streamWriter.write(preferencias.getString("dataJSON",""));
+                        streamWriter.write(preferencias.getString("DATATOTAL",""));
                         streamWriter.flush();
                   //----Leer el response de la peticion POST
                         InputStream in1 = urlConnection.getInputStream();
@@ -421,31 +440,97 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     private void ProcesarRespuestaDeServidor(String respuesta){
        //DUDA: Puede Responder el Servidor otra cosa? ..ver como se responden los errores del servidor no de envio
        //si estadoServicio=falso: cancelar runne(servicio) y alarmManager(activity).
+        Log.e(TAG, "respuesta cruda servidor: " + respuesta);
+
         SharedPreferences.Editor editor = preferencias.edit();
-        Log.e(TAG, "Respuesta del Servidor: " + respuesta);
 
-        if ("Incorrecto".equals(respuesta)){
-            editor.putString("estadoConfig", respuesta);
-            editor.putBoolean("estadoServicio",false);
-            editor.putString("estadoDATAJSON","Primera");//BorroJson
-        }
-        if ("desasignado".equals(respuesta)){
-            editor.putString("estadoConfig", "Incorrecto");
-            editor.putBoolean("estadoServicio",false);
-            editor.putString("estadoDATAJSON","Primera");//BorroJson
-            editor.putBoolean("desasignado", true);
-        }
-        if ("Correcto".equals(respuesta)) {
-            editor.putString("estadoConfig", respuesta);
-            editor.putString("estadoDATAJSON","Primera");//BorroJson
-        }
-        if ("ERRORBD".equals(respuesta)) {
-            noInternet();
+        try {
+            JSONArray jRespuesta = new JSONArray(respuesta);
+
+
+            if ("Incorrecto".equals(jRespuesta.getString(0))){
+                editor.putString("estadoConfig", "Incorrecto");
+                editor.putBoolean("estadoServicio",false);
+                editor.putString("estadoDATAJSON","Primera");//BorroJson
+                editor.putBoolean("MenjToServidor_acum", true);
+            }
+            if ("desasignado".equals(jRespuesta.getString(0))){
+                editor.putString("estadoConfig", "Incorrecto");
+                editor.putBoolean("estadoServicio",false);
+                editor.putString("estadoDATAJSON","Primera");//BorroJson
+                editor.putBoolean("desasignado", true);
+                editor.putBoolean("MenjToServidor_acum", true);
+            }
+            if ("ERRORBD".equals(jRespuesta.getString(0))) {
+                noInternet();
+            }
+            if ("Correcto".equals(jRespuesta.getString(0))) {
+                editor.putString("estadoConfig", "Correcto");
+                editor.putString("estadoDATAJSON","Primera");//BorroJson
+                editor.putBoolean("MenjToServidor_acum", true);
+                Log.e(TAG, "Respuesta del Servidor: Correcto");
+                if (!"nada".equals(jRespuesta.getString(1))) { //si hay mensaje
+                    Log.e(TAG, "servidor: " + jRespuesta);
+                    JSONArray jtodos_mensajes = new JSONArray();
+                    try{
+                        boolean primermensaje = preferencias.getBoolean("primermensaje",true);
+
+                        if (primermensaje) {//primera ves
+                            editor.putBoolean("primermensaje", false);
+                        }else{//no primera ves
+                            String sharedJsonmensaje= preferencias.getString("sharedJsonmensaje","");//tomo en cuenta lo anterior
+                            JSONArray ARRAYsharedJsonmensaje = new JSONArray(sharedJsonmensaje);
+                            editor.putInt("anterior", ARRAYsharedJsonmensaje.length());
+
+                            for (int i = 0; i < ARRAYsharedJsonmensaje.length(); i++) {
+                                JSONObject junmensaje = ARRAYsharedJsonmensaje.getJSONObject(i);
+
+                                JSONObject track1 = new JSONObject();
+                                track1.put("texto", junmensaje.getString("texto"));
+                                track1.put("tiempo", junmensaje.getString("tiempo"));
+                                track1.put("creado",junmensaje.getString("creado"));
+
+                                jtodos_mensajes.put(track1);
+                            }//for
+
+                        }//else
+
+
+                        for (int i = 1; i < jRespuesta.length(); i++) {
+                            JSONObject junmensaje = jRespuesta.getJSONObject(i);
+
+                                JSONObject track1 = new JSONObject();
+                                track1.put("texto", junmensaje.getString("texto"));
+                                track1.put("tiempo", junmensaje.getString("tiempo"));
+                                track1.put("creado","s");
+                            track1.put("enviado", "f");
+                            jtodos_mensajes.put(track1);
+                        }//for
+
+
+                        editor.putString("sharedJsonmensaje", jtodos_mensajes.toString());
+                        Log.e(TAG, "servidor+acumulado: " + jtodos_mensajes.toString());
+                        editor.apply();
+                        actualizarActividad_mensajes();
+
+                    }   catch(JSONException e) {
+                    e.printStackTrace();
+                }
+
+                }//si hay mensaje
+            }//correcto
+
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error Json: " + e);
         }
 
-        editor.apply();
+
+        editor.commit();
         actualizarActividad();
         TerminoSegundoHilo();//caso: respuesta Servidor
+
+
     }
     protected void noInternet(){
         Log.e(TAG, "No hay Internet");
@@ -460,7 +545,15 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         intent.setAction("test.UPDATE");
         getBaseContext().sendBroadcast(intent);
     }
+    protected void actualizarActividad_mensajes(){
+        Intent intent = new Intent();
+        intent.setAction("test.UPDATEMENSAJE");
+        getBaseContext().sendBroadcast(intent);
+    }
     protected void TerminoSegundoHilo(){
+        SharedPreferences.Editor editor = preferencias.edit();
+        editor.putBoolean("evitar2veces",true);
+        editor.apply();
         Log.e(TAG, "TerminoSegundoHilo");
         if (!DescartarLLamadaDeRunnableGPSActivo){
             stopSelf();
@@ -480,7 +573,5 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
        // }
     }
-}//Runnable->AlarmManager->Runnable (rapido, activo y los primeros 2 no OnStartCommand) : Error, Se cancelan
-// estoy en runnable (mientras estan en el tiempo de esperar otra llamada) cambio a AlarmManager, no dejo que entre al OnStartCommand y lo vuelvo
-//a cambiar a runnable.. (runnable Cancelar y cancelAlarmManager)
-//AlarmManager->Runnable->AlarmManager (Rapido) : ??
+
+}
