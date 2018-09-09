@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,10 +38,12 @@ public class MainActivity extends AppCompatActivity {
      SharedPreferences preferencias;
      Switch switche;
      int periodo;
+    RelativeLayout id_mapa,id_configuracion,id_mensajes,id_presentacion;
      ////////////CONSTANTES CONFIGURAR///////////////////////
      private static Integer LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER = 120000; // ms
      private static Integer CONVERSION_MIN_MS = 60000; // min->ms
      ////////////////////////////////////////////////////////
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -64,14 +67,20 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setLogoDescription("Rutas");
+        setContentView(R.layout.activity_main1);
+
+        id_mapa = findViewById(R.id.id_mapa);
+        id_configuracion = findViewById(R.id.id_configuracion);
+        id_mensajes = findViewById(R.id.id_mensajes);
+        id_presentacion = findViewById(R.id.id_presentacion);
+
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        //toolbar.setLogoDescription("Rutas");
         preferencias= PreferenceManager.getDefaultSharedPreferences(this);
 
         //intanciar llamada del servicio a Actualizar IU
@@ -87,6 +96,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 switche ();
+            }
+        });
+
+        id_mapa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               // startActivity(new Intent(MainActivity.this,mapa.class));
+            }
+        });
+
+        id_configuracion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,preferencias.class));
+            }
+        });
+
+        id_mensajes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,minichat.class));
+            }
+        });
+
+        id_presentacion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,presentacion.class));
             }
         });
 
@@ -117,23 +154,23 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("ResourceAsColor")
     public void refrescarIU(){
         Log.e(TAG, "refrescarIU");
-        TextView TV_URL = findViewById(R.id.TV_URL);
-        TextView TV_NIU = findViewById(R.id.TV_NIU);
-        TextView TV_Periodo = findViewById(R.id.TV_Periodo);
-        TextView TV_Unidad = findViewById(R.id.TV_Unidad);
+        //TextView TV_URL = findViewById(R.id.TV_URL);
+        //TextView TV_NIU = findViewById(R.id.TV_NIU);
+        //TextView TV_Periodo = findViewById(R.id.TV_Periodo);
+        //TextView TV_Unidad = findViewById(R.id.TV_Unidad);
         TextView TV_EstConfi = findViewById(R.id.TV_estadoConfi);
 
 
-        String ET_URL = preferencias.getString("ET_URL","vacio");
-        String ET_NIU = preferencias.getString("ET_NIU","vacio");
+        //String ET_URL = preferencias.getString("ET_URL","vacio");
+        //String ET_NIU = preferencias.getString("ET_NIU","vacio");
         String LP_periodo = preferencias.getString("LP_periodo","1");
-        String ET_Unidad = preferencias.getString("ET_Unidad","vacio");
+        //String ET_Unidad = preferencias.getString("ET_Unidad","vacio");
         periodo =  Integer.parseInt(LP_periodo)*CONVERSION_MIN_MS;
 
-        TV_URL.setText(ET_URL);
-        TV_NIU.setText(ET_NIU);
-        TV_Periodo.setText(LP_periodo);
-        TV_Unidad.setText(ET_Unidad);
+        //TV_URL.setText(ET_URL);
+        //TV_NIU.setText(ET_NIU);
+        //TV_Periodo.setText(LP_periodo);
+        //TV_Unidad.setText(ET_Unidad);
 
         String estadoConfig = preferencias.getString("estadoConfig","Por Completar");
         switche.setChecked(preferencias.getBoolean("estadoServicio",false));

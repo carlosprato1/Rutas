@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -263,7 +266,8 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
            if (location.getAccuracy() < 30.0F) {
                TomarDistancia(location);
-               if (Distancia >= 20.0F || !preferencias.getBoolean("MenjToServidor_acum", true)) {
+
+
                    if  (preferencias.getBoolean("evitar2veces", true)) {
                        editor.putBoolean("evitar2veces",false);
                        editor.commit();
@@ -272,20 +276,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                        clientHTTP_POST();
                        //SegundoHilo trabajando
                    }
-               }else{ //si la distancia es menor "parado"
 
-                  if ("Primera".equals(estadoDATAJSON) && "Por Verificar".equals(estadoConfig)){
-                      //oprtunidad de verificar en caso que se cambien la configuracion en corta distancia
-                      //esto podra lanzar varios puntos cercanos si se cambia la configuracion varias veces
-                      //sobre un mismo punto
-
-                      ObtenerdatosUbicacion(location);
-                      ArmarJSON();
-                      clientHTTP_POST();
-                  }
-                   stopLocationUpdates();
-                   TerminoSegundoHilo();//caso: distancia corta
-               }
 
            }
         }
@@ -352,8 +343,18 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
                 if(json.length() > 30000){Log.e(TAG, "JSON LLeno");return;}
             }
-            jArray.put(track);
-            DATADEF.put("reporteUbicacion",jArray);
+
+
+            if  (Distancia > 20.0F || "Primera".equals(preferencias.getString("estadoDATAJSON","NoPrimera")) ){
+                if (Distancia < 20.0F){
+                    track.put("z", "corta");
+                }
+
+                jArray.put(track);
+                DATADEF.put("reporteUbicacion",jArray);
+            }
+
+
 
             if (!preferencias.getBoolean("MenjToServidor_acum", true)) {
 
@@ -470,6 +471,8 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                 editor.putBoolean("MenjToServidor_acum", true);
                 Log.e(TAG, "Respuesta del Servidor: Correcto");
                 if (!"nada".equals(jRespuesta.getString(1))) { //si hay mensaje
+                    notificar();
+
                     Log.e(TAG, "servidor: " + jRespuesta);
                     JSONArray jtodos_mensajes = new JSONArray();
                     try{
@@ -563,15 +566,14 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         DescartarLLamadaDeAlarManagerGPSActivo=false;
       // if (Periodo > LIMITE_ENTRE_RUNNABLE_Y_ALARMMANAGER){//finalizar alarmManager
 
- /*DescartarLLamadaDeAlarManagerGPSActivo=false; en el caso AlarmManager->runnable el periodo cambia
- y no destruye el servicio y esta variable permaneceria true. por lo que no se pudiera usar
- esta variable para hacer saber al runnable que el alarmManager sigue activo*/
-
-
-
-
 
        // }
+    }
+
+    protected void notificar(){
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+        r.play();
     }
 
 }

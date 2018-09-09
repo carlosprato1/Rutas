@@ -32,6 +32,12 @@
         <activity
             android:name=".minichat"
             android:label="Mensajes" />
+        <activity
+            android:name=".presentacion"
+            android:label="Presentacion" />
+        <activity
+            android:name=".mapa"
+            android:label="Mapa" />
 
         <service
             android:name=".Myservice"
