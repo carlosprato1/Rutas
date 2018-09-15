@@ -8,5 +8,18 @@
     <color name="WHITE">#ffffff</color>
     <color name="yellow">#dbdf09</color>
     <color name="blue">#2765ff</color>
+    <color name="backgroungColor">#cbcdd2</color>
+    <color name="backgroungColorMain">#dfdfdf</color>
+
+
+    <color name="accent">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="jet">#222222</color>
+    <color name="oil">#333333</color>
+    <color name="monsoon">#777777</color>
+    <color name="jumbo">#888888</color>
+    <color name="aluminum">#999999</color>
+    <color name="base">#AAAAAA</color>
+    <color name="iron">#CCCCCC</color>
 
 </resources>

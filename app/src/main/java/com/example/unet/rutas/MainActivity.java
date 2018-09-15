@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         id_mapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // startActivity(new Intent(MainActivity.this,mapa.class));
+                startActivity(new Intent(MainActivity.this,MapsActivity.class));
             }
         });
 
@@ -133,22 +133,6 @@ public class MainActivity extends AppCompatActivity {
        super.onResume();
         refrescarIU();
 
-        LocationManager GPSStatus = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        assert GPSStatus != null;
-        if (!GPSStatus.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("GPS Deshabilitado")
-                    .setCancelable(false)
-                    .setPositiveButton("Habilitar", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(intent);
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
-
     }
 
     @SuppressLint("ResourceAsColor")
@@ -171,6 +155,14 @@ public class MainActivity extends AppCompatActivity {
         //TV_NIU.setText(ET_NIU);
         //TV_Periodo.setText(LP_periodo);
         //TV_Unidad.setText(ET_Unidad);
+
+        if (preferencias.getBoolean("estadoServicio", false)){
+            switche.setText("Encendido");
+        }else{
+            switche.setText("Apagado");
+        }
+
+
 
         String estadoConfig = preferencias.getString("estadoConfig","Por Completar");
         switche.setChecked(preferencias.getBoolean("estadoServicio",false));

@@ -90,6 +90,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     Float precision;
     Float direccion;
     Integer ACC;
+    Boolean registro=false;
 
     public Myservice() {
     }
@@ -104,7 +105,6 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         Log.e(TAG, "Oncreate");
         preferencias = PreferenceManager.getDefaultSharedPreferences(this);
 
-
     }
     @Override
     public void onStart(Intent intent, int starid){
@@ -113,6 +113,14 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
     @Override
     public int onStartCommand (Intent intent, int flags, int starId){
         Log.e(TAG, "onStartCommand");
+
+        if("registro".equals(intent.getStringExtra("id")))  {
+            registro = true;
+            Log.e(TAG, "intent extra registro");
+            ConectarGoogleAPICient();
+            return START_REDELIVER_INTENT;
+        }
+
       //se llama a esta funcion si no se ha cerrado(stopself o servicestop) y alguien lo vuelve a llamar.
         verificarCambiosdePreferencias();
 
@@ -257,7 +265,15 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
             editor.apply();
             if(location.getAccuracy() < 100.0F) {
 
+
                 ObtenerdatosUbicacion(location);
+                if (registro){
+                    editor.putFloat("Lat", (float)location.getLatitude());
+                    editor.putFloat("Lon", (float)location.getLongitude());
+                    editor.apply();
+                    registro = false;
+                    return;
+                }
                 ArmarJSON();
                 clientHTTP_POST();
                 //SegundoHilo trabajando
@@ -265,6 +281,14 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
         }else{
 
            if (location.getAccuracy() < 30.0F) {
+
+               if (registro){
+                   editor.putFloat("Lat", (float)location.getLatitude());
+                   editor.putFloat("Lon", (float)location.getLongitude());
+                   editor.apply();
+                   registro = false;
+                   return;
+               }
                TomarDistancia(location);
 
 
@@ -272,6 +296,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                        editor.putBoolean("evitar2veces",false);
                        editor.commit();
                        ObtenerdatosUbicacion(location);
+
                        ArmarJSON();
                        clientHTTP_POST();
                        //SegundoHilo trabajando
@@ -307,12 +332,15 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
             var19.printStackTrace();
         }
 
+
         latitud = Double.toString(location.getLatitude());
         longitud = Double.toString(location.getLongitude());
         altitud = location.getAltitude();
         speed = location.getSpeed() * 3.6F; // m/s -> km/h
         precision = location.getAccuracy();
         direccion = location.getBearing();
+
+
     }
     protected void ArmarJSON(){
         SharedPreferences.Editor editor = preferencias.edit();
@@ -345,9 +373,48 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
             }
 
 
-            if  (Distancia > 20.0F || "Primera".equals(preferencias.getString("estadoDATAJSON","NoPrimera")) ){
-                if (Distancia < 20.0F){
+            if  (Distancia > 10.0F || "Primera".equals(preferencias.getString("estadoDATAJSON","NoPrimera")) ){//necesito que tenga siempre por lo menos una para que funcione los  mensajes
+                if (Distancia < 10.0F){//filtro completo
                     track.put("z", "corta");
+                }else{
+                    //distancia para tomar en cuenta.
+                    SharedPreferences mapapreferences = getSharedPreferences("posiciones_para_mapa", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editormapa = mapapreferences.edit();
+
+
+                       String lat4 = mapapreferences.getString("lat4","nada");
+                       String lon4 = mapapreferences.getString("lon4","nada");
+
+                       String lat3 = mapapreferences.getString("lat3","nada");
+                       String lon3 = mapapreferences.getString("lon3","nada");
+
+                       String lat2 = mapapreferences.getString("lat2","nada");
+                       String lon2 = mapapreferences.getString("lon2","nada");
+
+                       String lat1 = mapapreferences.getString("lat1","nada");
+                       String lon1 = mapapreferences.getString("lon1","nada");
+
+                       editormapa.putString("lat4",latitud);
+                       editormapa.putString("lon4",longitud);
+
+                       if (!"nada".equals(lat4)){
+                           editormapa.putString("lat3",lat4);
+                           editormapa.putString("lon3",lon4);
+                       }
+                       if (!"nada".equals(lat3)){
+                           editormapa.putString("lat2",lat3);
+                           editormapa.putString("lon2",lon3);
+                       }
+                       if (!"nada".equals(lat2)){
+                           editormapa.putString("lat1",lat2);
+                           editormapa.putString("lon1",lon2);
+                       }
+                       if (!"nada".equals(lat1)){
+                           editormapa.putString("lat0",lat1);
+                           editormapa.putString("lon0",lon1);
+                       }
+
+                    editormapa.apply();
                 }
 
                 jArray.put(track);

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroungColorMain"
     tools:context="com.example.unet.rutas.MainActivity">
 
     <RelativeLayout
@@ -117,7 +118,6 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.55"
                     android:background="@color/blue"
-                    android:clickable="true"
                     android:foreground="?attr/selectableItemBackground">
 
                     <RelativeLayout
@@ -155,7 +155,6 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.65"
                     android:background="@color/GREEN"
-                    android:clickable="true"
                     android:foreground="?attr/selectableItemBackground">
 
                     <RelativeLayout

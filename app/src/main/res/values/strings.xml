@@ -8,4 +8,5 @@
         para gestionar la actividad de este, cuenta con un menú de Parámetro, Presentación, Mensaje y Mapa.
         Esta aplicación creada por Android para el lado del cliente y luego PHP MySQL para el lado de administración. Corre bajo
         Plataforma Android que es el sistema operativo más popular del mundo.</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
