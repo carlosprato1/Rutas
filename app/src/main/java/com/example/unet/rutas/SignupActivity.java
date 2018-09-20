@@ -49,7 +49,6 @@ public class SignupActivity extends AppCompatActivity {
 
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
-    @BindView(R.id.input_ipv4) TextView _ipv4Pruebas;
     @BindView(R.id.input_parcial1) TextView _parcial1Text;
     @BindView(R.id.input_password) EditText _passwordText;
     @BindView(R.id.btn_signup) Button _signupButton;
@@ -64,14 +63,14 @@ public class SignupActivity extends AppCompatActivity {
         preferencias = PreferenceManager.getDefaultSharedPreferences(this);
         ButterKnife.bind(this);
 
+        startService(new Intent(this, Myservice.class).putExtra("id","registro")); //actualizar ubicacion para registro
+
         URLServer = preferencias.getString("ET_URL","cualquiera");
 
        lat = Float.toString(preferencias.getFloat("Lat",0.0F)) ;
        lon = Float.toString(preferencias.getFloat("Lon",0.0F));
 
-        if (!"cualquiera".equals(URLServer)){
-            _ipv4Pruebas.setText(URLServer);
-        }
+
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,8 +108,13 @@ public class SignupActivity extends AppCompatActivity {
     public void signup() {
         Log.e(TAG, "Signup");
 
+        if ("cualquiera".equals(URLServer)){
+            Toast.makeText(getBaseContext(), "Introduzca la Direccion del Servidor", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (!validate()) {
-            onSignupFailed();
+            _signupButton.setEnabled(true);
             return;
         }
 
@@ -123,12 +127,6 @@ public class SignupActivity extends AppCompatActivity {
         password = _passwordText.getText().toString();
         parcial1 = _parcial1Text.getText().toString();
 
-        URLServer = _ipv4Pruebas.getText().toString();
-
-        SharedPreferences.Editor editor = preferencias.edit();
-        editor.putString("ET_URL",URLServer );
-
-        editor.apply();
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Myservice.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -169,7 +167,8 @@ public class SignupActivity extends AppCompatActivity {
         String name = _nameText.getText().toString();
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
-        String ipv4 = _ipv4Pruebas.getText().toString();
+
+        String parcial = _parcial1Text.getText().toString();
 
         if (name.isEmpty() || name.length() < 3) {
             _nameText.setError("al menos 3 caracteres");
@@ -178,12 +177,6 @@ public class SignupActivity extends AppCompatActivity {
             _nameText.setError(null);
         }
 
-        if (ipv4.isEmpty() || ipv4.length() < 13) {
-            _ipv4Pruebas.setError("al menos 13 caracteres");
-            valid = false;
-        } else {
-            _ipv4Pruebas.setError(null);
-        }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _emailText.setError("email invalido");
@@ -197,6 +190,13 @@ public class SignupActivity extends AppCompatActivity {
             valid = false;
         } else {
             _passwordText.setError(null);
+        }
+
+        if (parcial.isEmpty()) {
+            _parcial1Text.setError("introduzca nota");
+            valid = false;
+        } else {
+            _parcial1Text.setError(null);
         }
 
         return valid;

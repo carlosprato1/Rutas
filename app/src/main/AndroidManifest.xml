@@ -19,10 +19,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
-
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".preferencias"
             android:label="Configuracion" />
@@ -32,25 +29,23 @@
         <activity
             android:name=".presentacion"
             android:label="Presentacion" />
-
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"/>
-
-        <activity
-            android:name=".LoginActivity"
-           >
+            android:label="@string/title_activity_maps" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-         </activity>
-
+        </activity>
         <activity
             android:name=".SignupActivity"
-            android:label="Registro"/>
+            android:label="Registro" />
+
+        <activity
+            android:name=".Rrlserver"
+            android:label="URLserver" />
 
         <service
             android:name=".Myservice"
@@ -70,12 +65,13 @@
             </intent-filter>
         </receiver>
 
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-
+        <activity
+            android:name=".MapsActivity2"
+            android:label="@string/title_activity_maps2"></activity>
     </application>
 
 </manifest>

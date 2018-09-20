@@ -5,6 +5,8 @@ package com.example.unet.rutas;
         import android.content.Context;
         import android.content.DialogInterface;
         import android.content.SharedPreferences;
+        import android.graphics.Bitmap;
+        import android.graphics.BitmapFactory;
         import android.location.LocationManager;
         import android.net.ConnectivityManager;
         import android.net.NetworkInfo;
@@ -20,6 +22,7 @@ package com.example.unet.rutas;
         import android.view.View;
         import android.widget.Button;
         import android.widget.EditText;
+        import android.widget.ImageView;
         import android.widget.TextView;
         import android.widget.Toast;
 
@@ -52,6 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.input_password) EditText _passwordText;
     @BindView(R.id.btn_login) Button _loginButton;
     @BindView(R.id.link_signup) TextView _signupLink;
+    @BindView(R.id.texturl_server) TextView _texto;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
             alert.show();
         }
 
-        startService(new Intent(this, Myservice.class).putExtra("id","registro")); //actualizar ubicacion para registro
+
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -97,17 +101,26 @@ public class LoginActivity extends AppCompatActivity {
                startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
+
+        _texto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), Rrlserver.class);
+                startActivityForResult(intent, REQUEST_SIGNUP);
+            }
+        });
+
     }
 
     public void login() {
         Log.e(TAG, "Login");
 
         if (!validate()) {
-            onLoginFailed();
+            _loginButton.setEnabled(true);
             return;
         }
         if ("cualquiera".equals(URLServer)){
-            Toast.makeText(getBaseContext(), "Introduzca la Ip del Servidor", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "Introduzca la Direccion del Servidor", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -116,12 +129,14 @@ public class LoginActivity extends AppCompatActivity {
         email = _emailText.getText().toString();
         password = _passwordText.getText().toString();
 
+
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Myservice.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
 
             ArmarJSONlogin();
             new TareaAsincrona1().execute(URLServer,preferencias.getString("jlogin",""));
+
         } else {
             Toast.makeText(getBaseContext(), "No hay conexion a la red", Toast.LENGTH_LONG).show();
 
@@ -151,16 +166,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
+        progressDialog.dismiss();
         _loginButton.setEnabled(true);
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MapsActivity2.class);
         startActivityForResult(intent, REQUEST_SIGNUP);
-
         finish();
     }
 
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Acceso fallido", Toast.LENGTH_LONG).show();
-
+        Toast.makeText(getBaseContext(), "Email o clave Incorrecta", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
     }
 
@@ -171,14 +185,14 @@ public class LoginActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("enter a valid email address");
+            _emailText.setError("introduzca un email valido");
             valid = false;
         } else {
             _emailText.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+            _passwordText.setError("entre 4 y 10 caracteres alfanumericos");
             valid = false;
         } else {
             _passwordText.setError(null);
@@ -205,7 +219,6 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 
 
     public class TareaAsincrona1 extends AsyncTask<String, Boolean, String> {
@@ -271,7 +284,7 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(String respuesta) {
             super.onPostExecute(respuesta);
             progressDialog.dismiss();
-            ProcesarRespuestaDeServidor(current);
+            ProcesarRespuestaDeServidor(respuesta);
 
         }
 
@@ -279,12 +292,38 @@ public class LoginActivity extends AppCompatActivity {
 
     public void ProcesarRespuestaDeServidor(String respuesta){
         Log.e(TAG, "respuesta servidor: "+respuesta);
-        if ("identificado".equals(respuesta)){
-            onLoginSuccess();
-        }else{
-            onLoginFailed();
+        SharedPreferences.Editor editor = preferencias.edit();
+
+        try {
+            JSONArray jRespRegistro = new JSONArray(respuesta);
+
+
+            if ("identificado".equals(jRespRegistro.getString(0))){
+
+                editor.putString("Server_name",jRespRegistro.getString(1));
+                editor.putString("Server_user_email",jRespRegistro.getString(2));
+                editor.putString("Server_latitud",jRespRegistro.getString(3));
+                editor.putString("Server_longitud",jRespRegistro.getString(4));
+                editor.putString("Server_parcial1",jRespRegistro.getString(5));
+                editor.putString("Server_autores",jRespRegistro.getString(6));
+
+                editor.apply();
+                onLoginSuccess();
+                }else{
+                    onLoginFailed();
+                }
+
+        }catch (JSONException e) {
+            Log.e(TAG, "Error json registro: " + e);
+            Toast.makeText(getBaseContext(), "error en servidor", Toast.LENGTH_LONG).show();
+            _loginButton.setEnabled(true);
         }
 
+
+
     }
+
+
+
 
 }

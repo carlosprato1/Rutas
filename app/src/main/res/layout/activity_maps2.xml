@@ -1,0 +1,40 @@
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.unet.rutas.MapsActivity2">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:text="Menu Principal"
+        android:padding="5dp"
+        android:layout_marginTop="5dp"
+        android:id="@+id/menuButton"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:background="@drawable/transparent_button"
+        android:paddingRight="10dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:text="Salir"
+        android:padding="5dp"
+        android:layout_marginTop="60dp"
+        android:id="@+id/salir"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:background="@drawable/transparent_button"
+        android:paddingRight="30dp"/>
+
+
+
+    </fragment>

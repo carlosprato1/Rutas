@@ -5,6 +5,8 @@
     android:background="@color/WHITE"
     android:fitsSystemWindows="true">
 
+
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -13,12 +15,14 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
+
         <ImageView
             android:layout_width="178dp"
             android:layout_height="80dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"
             android:src="@drawable/iconoapp" />
+
 
         <!-- Email Label -->
         <android.support.design.widget.TextInputLayout
@@ -61,6 +65,15 @@
             android:layout_marginBottom="24dp"
             android:text="No Tienes cuenta? Registrate Aqui"
             android:gravity="center"
+            android:textSize="16dip"/>
+
+        <TextView android:id="@+id/texturl_server"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Preciona Aqui Para introducir la Url"
+            android:gravity="center"
+            android:onClick="urlserver"
             android:textSize="16dip"/>
 
     </LinearLayout>
