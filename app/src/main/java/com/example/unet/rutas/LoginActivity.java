@@ -121,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "Introduzca la Direccion del Servidor", Toast.LENGTH_LONG).show();
             return;
         }
+        startService(new Intent(this, Myservice.class).putExtra("id","registro")); //actualizar ubicacion para registro
 
         _loginButton.setEnabled(false);
 

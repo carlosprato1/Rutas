@@ -150,6 +150,9 @@ public class formularioActivity extends AppCompatActivity
                     track10.put("nota2", nota2);
                     track10.put("nota3", nota3);
                     track10.put("user_email", eva_email);
+                    track10.put("latitud", preferencias.getFloat("Lat",0.0F));
+                    track10.put("longitud", preferencias.getFloat("Lon",0.0F));
+
 
                     jsonPro_alum = track10.toString();
                     Log.e("formularioActivity", "jsonPro_alum" +jsonPro_alum);
