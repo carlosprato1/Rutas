@@ -46,6 +46,10 @@
         <activity
             android:name=".Rrlserver"
             android:label="URLserver" />
+        <activity
+            android:name=".formularioActivity"
+            android:label="Alumno" />
+
 
         <service
             android:name=".Myservice"

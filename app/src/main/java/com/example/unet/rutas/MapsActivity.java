@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     SharedPreferences preferencias;
-    public GoogleMap mMap;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +48,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.e("MApa", "onMapReady");
-        mMap = googleMap;
+        this.mMap = googleMap;
         if(ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == 0 || ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_COARSE_LOCATION") == 0) {
+            mMap.setMyLocationEnabled(true);
+        }else{
+            Log.e("MApa", "sin permisos");
+        }
 
             SharedPreferences mapapreferences = getSharedPreferences("posiciones_para_mapa", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editormapa = mapapreferences.edit();
+            //SharedPreferences.Editor editormapa = mapapreferences.edit();
 
             String lat4 = mapapreferences.getString("lat4","nada");
             String lon4 = mapapreferences.getString("lon4","nada");
@@ -96,11 +100,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
 
-            mMap.setMyLocationEnabled(true);
 
-        }else{
-            Log.e("MApa", "sin permisos");
-        }
+
+
 
        /*
         LatLng marker = new LatLng(-72, 9);

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+
+
+        <!--  Name Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/output_nombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Alumno"
+                android:textAlignment="center"
+                android:textSize="18dip" />
+
+            <TextView
+                android:id="@+id/output_correo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="correo"
+                android:textAlignment="center"
+                android:textColor="@color/colorAccent"
+                android:textSize="16dip" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Email Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <EditText android:id="@+id/pregunta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:hint="Pregunta" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--  Autor Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/res1234"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Respuesta del Alumno:"
+                android:textColor="@color/colorAccent"
+                android:textSize="16dip" />
+
+            <TextView
+                android:id="@+id/respuesta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Respuesta del Alumno No Disponible"
+                android:layout_marginTop="10dp"
+                android:textAlignment="center" />
+
+
+
+        </android.support.design.widget.TextInputLayout>
+
+        <!--  Parcial 1 Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <EditText android:id="@+id/input_parcial1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal|numberSigned"
+                android:hint="Parcial 1" />
+
+
+        </android.support.design.widget.TextInputLayout>
+
+        <EditText android:id="@+id/input_parcial2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:hint="Parcial 2" />
+
+        <EditText android:id="@+id/input_parcial3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:hint="Parcial 3" />
+
+        <TextView
+            android:id="@+id/output_definitiva"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:inputType="numberDecimal|numberSigned"
+            android:text="Nota Definitiva"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:textSize="18dip" />
+
+
+        <!-- Signup Button -->
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_aceptar"
+            android:layout_width="336dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:padding="1dp"
+            android:text="Aceptar"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+</ScrollView>

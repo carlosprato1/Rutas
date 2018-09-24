@@ -82,8 +82,6 @@ public class LoginActivity extends AppCompatActivity {
             alert.show();
         }
 
-
-
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -144,7 +142,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -297,7 +294,6 @@ public class LoginActivity extends AppCompatActivity {
         try {
             JSONArray jRespRegistro = new JSONArray(respuesta);
 
-
             if ("identificado".equals(jRespRegistro.getString(0))){
 
                 editor.putString("Server_name",jRespRegistro.getString(1));
@@ -318,7 +314,6 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "error en servidor", Toast.LENGTH_LONG).show();
             _loginButton.setEnabled(true);
         }
-
 
 
     }
