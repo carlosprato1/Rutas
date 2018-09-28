@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -38,6 +41,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 
 public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback {
@@ -58,6 +63,9 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     String Eparcial2[]= new String[20];
     String Eparcial3[]= new String[20];
     String bandera[]= new String[20];
+    String Eaddress;
+
+    Button evaluadores;
 
     private HashMap<Marker, Integer> mHashMap = new HashMap<>();
 
@@ -72,13 +80,13 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         super.onResume();
-        miposicion();
+      //  miposicion();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mMap != null) {mMap.clear();}
+       // if (mMap != null) {mMap.clear();}
     }
 
     @Override
@@ -90,7 +98,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
         Button _menuButton = findViewById(R.id.menuButton);
         Button _salirButton = findViewById(R.id.salir);
-        Button evaluadores = findViewById(R.id.Evaluados);
+        evaluadores = findViewById(R.id.Evaluados);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -117,10 +125,16 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             public void onClick(View v) {//disable button until finish
                 if (mMap != null) {mMap.clear();}
                 count = 1;
-                addEvaluados();
+
+               if ("Evaluados".equals(evaluadores.getText())){
+                   addEvaluados();
+                   evaluadores.setText("Mi posicion");
+               }else{
+                   miposicion();
+                   evaluadores.setText("Evaluados");
+               }
             }
         });
-
 
     }
 
@@ -138,21 +152,54 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
                 if(pos != 0) {
                     if ("0".equals(bandera[pos]) || EAuditorium[pos].equals(preferencias.getString("Server_user_email", "Vacio"))){
+
+                        Geocoder geocoder;
+                        List<Address> addresses;
+                        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                        Double __lat = Double.parseDouble(Elat[pos]);
+                        Double __lon = Double.parseDouble(Elon[pos]);
+
+                        String city = "";
+                        String municipio = "";
+                        String municipio2 = "";
+                        String calle = "";
+                        String casa = "";
+
+                        try {
+                            addresses = geocoder.getFromLocation(__lat, __lon, 1);
+
+                            if(addresses.get(0).getLocality() != null){city = addresses.get(0).getLocality();}
+                            if(addresses.get(0).getSubLocality() != null){municipio = ", "+addresses.get(0).getSubLocality();}
+                            if(addresses.get(0).getSubAdminArea() != null){municipio2 = ", "+addresses.get(0).getSubAdminArea();}
+                            if(addresses.get(0).getThoroughfare() != null){calle = ", "+addresses.get(0).getThoroughfare();}
+                            if(addresses.get(0).getSubThoroughfare() != null){casa = ", "+addresses.get(0).getSubThoroughfare();}
+
+                            Eaddress =city+municipio+municipio2+calle+casa;
+                            if (", ".equals(Eaddress.substring(0,2))){Eaddress = Eaddress.substring(2);}
+
+                        }catch (IOException ioE){
+                            Log.e(TAG, "geocoder.getFromLocation (ERROR) :" + ioE);
+                            Eaddress = "Direccion no disponible";
+                        }catch (IndexOutOfBoundsException exp){
+                            Log.e(TAG, "geocoder.getFromLocation (ERROR) :" + exp);
+                            Eaddress = "Direccion no disponible";
+                        }
+
                         Intent intent = new Intent(getApplicationContext(), formularioActivity.class)
                                 .putExtra("eva_name",Ename[pos])
                                 .putExtra("eva_email",EEmail[pos] )
                                 .putExtra("eva_audito",EAuditorium[pos])
-                                .putExtra("eva_pregun",EPregunta[pos] )
+                                .putExtra("eva_pregun",EPregunta[pos])
                                 .putExtra("eva_resp",ERespuesta[pos])
                                 .putExtra("eva_par1",Eparcial1[pos])
                                 .putExtra("eva_par2",Eparcial2[pos])
-                                .putExtra("eva_par3",Eparcial3[pos]);
+                                .putExtra("eva_par3",Eparcial3[pos])
+                                .putExtra("eva_address",Eaddress);
 
                         startActivity(intent);
                     }else{
                         Toast.makeText(getBaseContext(), Ename[pos]+" Esta pendiente por Responder a otro Evaluador", Toast.LENGTH_LONG).show();
                     }
-
 
                 }
 
@@ -170,7 +217,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         new TareaAsincrona2().execute(urlserver, URI);
 
     }
-
 
     public class TareaAsincrona2 extends AsyncTask<String, Boolean, Bitmap> {
 
@@ -217,13 +263,14 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         @Override
         protected void onPostExecute(Bitmap img) {
             if (img != null) {
-                if (miposicion) {
-                    Double lat = Double.parseDouble(preferencias.getString("Server_latitud", "0.1"));
-                    Double lon = Double.parseDouble(preferencias.getString("Server_longitud", "0.1"));
+                if (miposicion) { // profesor
+                    //Double lat = Double.parseDouble(preferencias.getString("Server_latitud", "0.1"));
+                    //Double lon = Double.parseDouble(preferencias.getString("Server_longitud", "0.1"));
+                    Float lat = preferencias.getFloat("Lat", 0.1F);
+                    Float lon = preferencias.getFloat("Lon", 0.1F);
                     String name = preferencias.getString("Server_name", "Vacio");
                     String autor = preferencias.getString("Server_autores", "vacio");
                     String nota = preferencias.getString("Server_parcial1", "0");
-
 
                     LatLng pos = new LatLng(lat, lon);
                     Marker marker = mMap.addMarker(new MarkerOptions()
@@ -235,7 +282,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(6F));
                     mHashMap.put(marker,0);
-                }else{
+                }else{ // alumno
 
                     LatLng pos = new LatLng(Double.parseDouble(Elat[count]), Double.parseDouble(Elon[count]));
                     Marker marker = mMap.addMarker(new MarkerOptions()
@@ -258,7 +305,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         if (this.mMap != null) {
             new TareaAsincrona3().execute(urlserver, "/controlador/reporteMapa.php","evaluados");
         }
-
 
     }//addEvaluadores
 

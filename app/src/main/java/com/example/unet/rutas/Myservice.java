@@ -302,7 +302,6 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
                        //SegundoHilo trabajando
                    }
 
-
            }
         }
     }

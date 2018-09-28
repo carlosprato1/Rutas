@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/WHITE"
     android:fitsSystemWindows="true">
 
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.unet.rutas.formularioActivity">
+
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
+        android:orientation="vertical"
         android:paddingLeft="24dp"
-        android:paddingRight="24dp">
-
+        android:paddingRight="24dp"
+        android:paddingTop="10dp">
 
         <!--  Name Label -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
 
             <TextView
                 android:id="@+id/output_nombre"
@@ -44,22 +55,23 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
 
-            <EditText android:id="@+id/pregunta"
+            <EditText
+                android:id="@+id/pregunta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:hint="Pregunta" />
+                android:hint="Pregunta"
+                android:inputType="textEmailAddress" />
         </android.support.design.widget.TextInputLayout>
 
         <!--  Autor Label -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="18dp">
 
             <TextView
                 android:id="@+id/res1234"
@@ -73,11 +85,9 @@
                 android:id="@+id/respuesta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Respuesta del Alumno No Disponible"
                 android:layout_marginTop="10dp"
+                android:text="Respuesta del Alumno No Disponible"
                 android:textAlignment="center" />
-
-
 
         </android.support.design.widget.TextInputLayout>
 
@@ -87,49 +97,92 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp">
 
-            <EditText android:id="@+id/input_parcial1"
+            <EditText
+                android:id="@+id/input_parcial1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal|numberSigned"
-                android:hint="Parcial 1" />
-
+                android:hint="Parcial 1"
+                android:inputType="numberDecimal|numberSigned" />
 
         </android.support.design.widget.TextInputLayout>
 
-        <EditText android:id="@+id/input_parcial2"
+        <EditText
+            android:id="@+id/input_parcial2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Parcial 2"
             android:inputType="numberDecimal|numberSigned"
-            android:hint="Parcial 2" />
+           />
 
-        <EditText android:id="@+id/input_parcial3"
+        <EditText
+            android:id="@+id/input_parcial3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Parcial 3"
             android:inputType="numberDecimal|numberSigned"
-            android:hint="Parcial 3" />
-
-        <TextView
-            android:id="@+id/output_definitiva"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:inputType="numberDecimal|numberSigned"
-            android:text="Nota Definitiva"
-            android:textAlignment="center"
-            android:textColor="@color/colorAccent"
-            android:textSize="18dip" />
-
-
-        <!-- Signup Button -->
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btn_aceptar"
-            android:layout_width="336dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="24dp"
-            android:padding="1dp"
-            android:text="Aceptar"
-            android:textAlignment="center" />
-
+          />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/nota"
+        android:layout_width="147dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="16dp"
+        android:text="Nota Total: "
+        android:textAlignment="center"
+        android:textColor="@color/colorAccent"
+        android:textSize="18dip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginLeft="44dp" />
+
+    <TextView
+        android:id="@+id/output_definitiva"
+        android:layout_width="101dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="56dp"
+        android:layout_marginTop="16dp"
+        android:text=""
+        android:textAlignment="center"
+        android:textColor="@color/colorAccent"
+        android:textSize="18dip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginRight="56dp" />
+
+
+
+    <!-- aceptar Button -->
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_aceptar"
+        android:layout_width="99dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="72dp"
+        android:padding="1dp"
+        android:text="Aceptar"
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginLeft="44dp" />
+
+    <!-- aceptar Button -->
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_cancelar"
+        android:layout_width="103dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="204dp"
+        android:layout_marginTop="72dp"
+        android:padding="1dp"
+        android:text="Retornar"
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:layout_marginLeft="204dp" />
+
+
+
+</android.support.constraint.ConstraintLayout>
+
 </ScrollView>

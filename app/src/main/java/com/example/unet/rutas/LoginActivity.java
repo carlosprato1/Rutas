@@ -113,6 +113,7 @@ public class LoginActivity extends AppCompatActivity {
     public void login() {
         Log.e(TAG, "Login");
 
+
         if (!validate()) {
             _loginButton.setEnabled(true);
             return;
@@ -121,13 +122,12 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "Introduzca la Direccion del Servidor", Toast.LENGTH_LONG).show();
             return;
         }
-        startService(new Intent(this, Myservice.class).putExtra("id","registro")); //actualizar ubicacion para registro
+        startService(new Intent(this, Myservice.class).putExtra("id","registro")); //actualizar ubicacion
 
         _loginButton.setEnabled(false);
 
         email = _emailText.getText().toString();
         password = _passwordText.getText().toString();
-
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Myservice.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -141,14 +141,12 @@ public class LoginActivity extends AppCompatActivity {
 
         }
 
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
 
                 // By default we just finish the Activity and log them in automatically
                 //Toast.makeText(getBaseContext(), "LOgeate por favor", Toast.LENGTH_LONG).show();

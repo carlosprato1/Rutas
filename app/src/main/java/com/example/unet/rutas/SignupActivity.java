@@ -46,7 +46,6 @@ public class SignupActivity extends AppCompatActivity {
     String lat;
     String lon;
 
-
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_parcial1) TextView _parcial1Text;
@@ -69,7 +68,6 @@ public class SignupActivity extends AppCompatActivity {
 
        lat = Float.toString(preferencias.getFloat("Lat",0.0F)) ;
        lon = Float.toString(preferencias.getFloat("Lon",0.0F));
-
 
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
@@ -301,6 +299,7 @@ public class SignupActivity extends AppCompatActivity {
         protected void onPostExecute(String respuesta) {
             super.onPostExecute(respuesta);
             progressDialog.dismiss();
+            Log.e(TAG, "respuesta (registro):"+ current);
             ProcesarRespuestaDeServidor(current);
 
         }

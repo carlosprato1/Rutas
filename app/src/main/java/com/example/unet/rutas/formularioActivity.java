@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -47,6 +48,7 @@ public class formularioActivity extends AppCompatActivity
     String jsonPro_alum;
     String eva_email;
 
+
     @BindView(R.id.output_nombre) TextView _nombre;
     @BindView(R.id.output_correo) TextView _correo;
     @BindView(R.id.pregunta) EditText _pregunta;
@@ -56,6 +58,7 @@ public class formularioActivity extends AppCompatActivity
     @BindView(R.id.input_parcial3) EditText _parcial3;
     @BindView(R.id.output_definitiva) TextView _definitiva;
     @BindView(R.id.btn_aceptar) Button button;
+    @BindView(R.id.btn_cancelar) Button button_cancelar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,20 +73,18 @@ public class formularioActivity extends AppCompatActivity
         String eva_par2 = getIntent().getStringExtra("eva_par2");
         String eva_par3 = getIntent().getStringExtra("eva_par3");
         String eva_pregun = getIntent().getStringExtra("eva_pregun");
+        String eva_adress = getIntent().getStringExtra("eva_address");
         eva_resp = getIntent().getStringExtra("eva_resp");
 
         _nombre.setText(eva_name);
-        _correo.setText(eva_email);
+        _correo.setText(eva_adress);
         _parcial1.setText(eva_par1);
         _parcial2.setText(eva_par2);
         _parcial3.setText(eva_par3);
         _pregunta.setText(eva_pregun);
 
-
         if ("".equals(eva_resp)){
              bandera  = 1;
-            _parcial2.setEnabled(false);
-            _parcial3.setEnabled(false);
 
         }else{
             _respuesta.setText(eva_resp);
@@ -92,15 +93,79 @@ public class formularioActivity extends AppCompatActivity
         _parcial3.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+                String nota1 = _parcial1.getText().toString();
+                String nota2 = _parcial2.getText().toString();
+                String nota3 = _parcial3.getText().toString();
+                if("".equals(nota1)) {nota1 = "0";}
+                if("".equals(nota2)) {nota2 = "0";}
+                if("".equals(nota3)) {nota3 = "0";}
+                if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+                if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+                if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+
+                Float nota1float =Float.parseFloat(nota1);
+                Float nota2float =Float.parseFloat(nota2);
+                Float nota3float =Float.parseFloat(nota3);
+
+                Float definitiva = nota1float+nota2float+nota3float;
+                _definitiva.setText(String.valueOf(definitiva));
             }
 
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        _parcial2.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String nota1 = _parcial1.getText().toString();
                 String nota2 = _parcial2.getText().toString();
                 String nota3 = _parcial3.getText().toString();
-                String pregunta = _pregunta.getText().toString();
+                if("".equals(nota1)) {nota1 = "0";}
+                if("".equals(nota2)) {nota2 = "0";}
+                if("".equals(nota3)) {nota3 = "0";}
+                if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+                if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+                if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+
+
+                Float nota1float =Float.parseFloat(nota1);
+                Float nota2float =Float.parseFloat(nota2);
+                Float nota3float =Float.parseFloat(nota3);
+
+                Float definitiva = nota1float+nota2float+nota3float;
+                _definitiva.setText(String.valueOf(definitiva));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        _parcial1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String nota1 = _parcial1.getText().toString();
+                String nota2 = _parcial2.getText().toString();
+                String nota3 = _parcial3.getText().toString();
+                if("".equals(nota1)) {nota1 = "0";}
+                if("".equals(nota2)) {nota2 = "0";}
+                if("".equals(nota3)) {nota3 = "0";}
+                if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+                if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+                if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+
 
                 Float nota1float =Float.parseFloat(nota1);
                 Float nota2float =Float.parseFloat(nota2);
@@ -116,6 +181,14 @@ public class formularioActivity extends AppCompatActivity
             }
         });
 
+        button_cancelar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MapsActivity2.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,21 +223,38 @@ public class formularioActivity extends AppCompatActivity
                     track10.put("nota2", nota2);
                     track10.put("nota3", nota3);
                     track10.put("user_email", eva_email);
-                    track10.put("latitud", preferencias.getFloat("Lat",0.0F));
-                    track10.put("longitud", preferencias.getFloat("Lon",0.0F));
+                    track10.put("latitud", Float.toString(preferencias.getFloat("Lat",0.0F)));
+                    track10.put("longitud", Float.toString(preferencias.getFloat("Lon",0.0F)));
 
 
                     jsonPro_alum = track10.toString();
                     Log.e("formularioActivity", "jsonPro_alum" +jsonPro_alum);
                 } catch (JSONException e) {}
 
-
                String urlserver = preferencias.getString("ET_URL", "cualquiera");
-
                new guardar_servidor().execute(urlserver);
+
 
             }
         });
+
+        String nota1 = _parcial1.getText().toString();
+        String nota2 = _parcial2.getText().toString();
+        String nota3 = _parcial3.getText().toString();
+        if("".equals(nota1)) {nota1 = "0";}
+        if("".equals(nota2)) {nota2 = "0";}
+        if("".equals(nota3)) {nota3 = "0";}
+        if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+        if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+        if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+
+
+        Float nota1float =Float.parseFloat(nota1);
+        Float nota2float =Float.parseFloat(nota2);
+        Float nota3float =Float.parseFloat(nota3);
+
+        Float definitiva = nota1float+nota2float+nota3float;
+        _definitiva.setText(String.valueOf(definitiva));
 
     }//oncreate
 
