@@ -73,20 +73,13 @@
             android:layout_marginBottom="8dp"
             android:layout_marginTop="18dp">
 
-            <TextView
-                android:id="@+id/res1234"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Respuesta del Alumno:"
-                android:textColor="@color/colorAccent"
-                android:textSize="16dip" />
 
-            <TextView
+            <EditText
                 android:id="@+id/respuesta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Respuesta del Alumno No Disponible"
+                android:hint="Respuesta"
                 android:textAlignment="center" />
 
         </android.support.design.widget.TextInputLayout>

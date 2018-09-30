@@ -47,12 +47,18 @@ public class formularioActivity extends AppCompatActivity
     String eva_resp;
     String jsonPro_alum;
     String eva_email;
+    String eva_par1;
+    String eva_par2 ;
+    String eva_par3;
+    String eva_pregun;
+    String autor;
+    String auditorium;
 
 
     @BindView(R.id.output_nombre) TextView _nombre;
     @BindView(R.id.output_correo) TextView _correo;
     @BindView(R.id.pregunta) EditText _pregunta;
-    @BindView(R.id.respuesta) TextView _respuesta;
+    @BindView(R.id.respuesta) EditText _respuesta;
     @BindView(R.id.input_parcial1) EditText _parcial1;
     @BindView(R.id.input_parcial2) EditText _parcial2;
     @BindView(R.id.input_parcial3) EditText _parcial3;
@@ -61,20 +67,60 @@ public class formularioActivity extends AppCompatActivity
     @BindView(R.id.btn_cancelar) Button button_cancelar;
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Intent intent = new Intent(getApplicationContext(), MapsActivity2.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.formulario_activity);
         ButterKnife.bind(this);
         preferencias = PreferenceManager.getDefaultSharedPreferences(this);
 
+        autor = preferencias.getString("Server_autores","Evaluador");
+
         String eva_name = getIntent().getStringExtra("eva_name");
-        eva_email = getIntent().getStringExtra("eva_email");
-        String eva_par1 = getIntent().getStringExtra("eva_par1");
-        String eva_par2 = getIntent().getStringExtra("eva_par2");
-        String eva_par3 = getIntent().getStringExtra("eva_par3");
-        String eva_pregun = getIntent().getStringExtra("eva_pregun");
         String eva_adress = getIntent().getStringExtra("eva_address");
-        eva_resp = getIntent().getStringExtra("eva_resp");
+
+        if ("Evaluador".equals(autor)){
+         auditorium =  preferencias.getString("Server_user_email", "Vacio");
+         eva_email = getIntent().getStringExtra("eva_email");
+         eva_par1 = getIntent().getStringExtra("eva_par1");
+         eva_par2 = getIntent().getStringExtra("eva_par2");
+         eva_par3 = getIntent().getStringExtra("eva_par3");
+         eva_pregun = getIntent().getStringExtra("eva_pregun");
+         eva_resp = getIntent().getStringExtra("eva_resp");
+
+         _respuesta.setEnabled(false);
+            if ("".equals(eva_resp)){
+                _respuesta.setText("No disponible");
+                bandera  = 1;
+            }else{
+                _respuesta.setText(eva_resp);
+                 button.setText("Evaluar");
+
+            }
+
+        }else{
+            auditorium = getIntent().getStringExtra("eva_email");
+            eva_email = preferencias.getString("Server_user_email","");
+            eva_par1 = preferencias.getString("Server_parcial1","");
+            eva_par2 = preferencias.getString("Server_parcial2","");
+            eva_par3 = preferencias.getString("Server_parcial3","");
+            eva_pregun = preferencias.getString("Server_auditorium_pregunta","");
+            eva_resp = preferencias.getString("Server_auditorium_respuesta","");
+            _pregunta.setEnabled(false);
+            _parcial1.setEnabled(false);
+            _parcial2.setEnabled(false);
+            _parcial3.setEnabled(false);
+
+            _respuesta.setText(eva_resp);
+            button.setText("Responder");
+        }
 
         _nombre.setText(eva_name);
         _correo.setText(eva_adress);
@@ -83,12 +129,7 @@ public class formularioActivity extends AppCompatActivity
         _parcial3.setText(eva_par3);
         _pregunta.setText(eva_pregun);
 
-        if ("".equals(eva_resp)){
-             bandera  = 1;
 
-        }else{
-            _respuesta.setText(eva_resp);
-        }
 
         _parcial3.addTextChangedListener(new TextWatcher() {
             @Override
@@ -96,23 +137,7 @@ public class formularioActivity extends AppCompatActivity
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                String nota1 = _parcial1.getText().toString();
-                String nota2 = _parcial2.getText().toString();
-                String nota3 = _parcial3.getText().toString();
-                if("".equals(nota1)) {nota1 = "0";}
-                if("".equals(nota2)) {nota2 = "0";}
-                if("".equals(nota3)) {nota3 = "0";}
-                if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-                if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-                if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-
-                Float nota1float =Float.parseFloat(nota1);
-                Float nota2float =Float.parseFloat(nota2);
-                Float nota3float =Float.parseFloat(nota3);
-
-                Float definitiva = nota1float+nota2float+nota3float;
-                _definitiva.setText(String.valueOf(definitiva));
+                ponernotas();
             }
 
             @Override
@@ -126,23 +151,7 @@ public class formularioActivity extends AppCompatActivity
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String nota1 = _parcial1.getText().toString();
-                String nota2 = _parcial2.getText().toString();
-                String nota3 = _parcial3.getText().toString();
-                if("".equals(nota1)) {nota1 = "0";}
-                if("".equals(nota2)) {nota2 = "0";}
-                if("".equals(nota3)) {nota3 = "0";}
-                if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-                if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-                if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-
-
-                Float nota1float =Float.parseFloat(nota1);
-                Float nota2float =Float.parseFloat(nota2);
-                Float nota3float =Float.parseFloat(nota3);
-
-                Float definitiva = nota1float+nota2float+nota3float;
-                _definitiva.setText(String.valueOf(definitiva));
+                ponernotas();
             }
 
             @Override
@@ -156,23 +165,7 @@ public class formularioActivity extends AppCompatActivity
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String nota1 = _parcial1.getText().toString();
-                String nota2 = _parcial2.getText().toString();
-                String nota3 = _parcial3.getText().toString();
-                if("".equals(nota1)) {nota1 = "0";}
-                if("".equals(nota2)) {nota2 = "0";}
-                if("".equals(nota3)) {nota3 = "0";}
-                if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-                if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-                if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-
-
-                Float nota1float =Float.parseFloat(nota1);
-                Float nota2float =Float.parseFloat(nota2);
-                Float nota3float =Float.parseFloat(nota3);
-
-                Float definitiva = nota1float+nota2float+nota3float;
-                _definitiva.setText(String.valueOf(definitiva));
+                ponernotas();
             }
 
             @Override
@@ -201,22 +194,27 @@ public class formularioActivity extends AppCompatActivity
                 String nota2 = _parcial2.getText().toString();
                 String nota3 = _parcial3.getText().toString();
                 String pregunta = _pregunta.getText().toString();
+                String respuesta = _respuesta.getText().toString();
+
+
+
+                if ("No disponible".equals(respuesta)){
+                    respuesta = "";
+                }
+                if  (!"No disponible".equals(respuesta) && "Evaluador".equals(autor)){
+                    bandera = 0;
+                   // Toast.makeText(getBaseContext(), "Alumno disponible para realizar otra pregunta", Toast.LENGTH_SHORT).show();
+                }
 
                 Float nota1float =Float.parseFloat(nota1);
                 Float nota2float =Float.parseFloat(nota2);
                 Float nota3float =Float.parseFloat(nota3);
 
 
-                if ( nota1float > 0F  && nota2float > 0F && nota3float > 0F){
-                    bandera  = 0; //libre
-                }else{
-                    bandera  = 1; //ocupado
-                }
-
                 try {
 
                     JSONObject track10 = new JSONObject();
-                    track10.put("auditorium", preferencias.getString("Server_user_email", "Vacio"));
+                    track10.put("auditorium", auditorium);
                     track10.put("auditorium_pregunta",pregunta);
                     track10.put("bandera", bandera);
                     track10.put("nota1", nota1);
@@ -225,7 +223,7 @@ public class formularioActivity extends AppCompatActivity
                     track10.put("user_email", eva_email);
                     track10.put("latitud", Float.toString(preferencias.getFloat("Lat",0.0F)));
                     track10.put("longitud", Float.toString(preferencias.getFloat("Lon",0.0F)));
-
+                    track10.put("auditorium_respuesta", respuesta);
 
                     jsonPro_alum = track10.toString();
                     Log.e("formularioActivity", "jsonPro_alum" +jsonPro_alum);
@@ -234,43 +232,31 @@ public class formularioActivity extends AppCompatActivity
                String urlserver = preferencias.getString("ET_URL", "cualquiera");
                new guardar_servidor().execute(urlserver);
 
-
             }
         });
+        ponernotas();
 
-        String nota1 = _parcial1.getText().toString();
-        String nota2 = _parcial2.getText().toString();
-        String nota3 = _parcial3.getText().toString();
-        if("".equals(nota1)) {nota1 = "0";}
-        if("".equals(nota2)) {nota2 = "0";}
-        if("".equals(nota3)) {nota3 = "0";}
-        if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-        if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-        if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
-
-
-        Float nota1float =Float.parseFloat(nota1);
-        Float nota2float =Float.parseFloat(nota2);
-        Float nota3float =Float.parseFloat(nota3);
-
-        Float definitiva = nota1float+nota2float+nota3float;
-        _definitiva.setText(String.valueOf(definitiva));
 
     }//oncreate
 
     public boolean validate() {
         boolean valid = true;
 
-        String nota1 =    _parcial1.getText().toString();
-        String nota2 = _parcial2.getText().toString();
-        String nota3 = _parcial3.getText().toString();
         String pregunta = _pregunta.getText().toString();
+        String respuesta = _respuesta.getText().toString();
 
         if (pregunta.isEmpty()) {
             _pregunta.setError("Realiza una pregunta");
             valid = false;
         } else {
             _pregunta.setError(null);
+        }
+
+        if (respuesta.isEmpty()) {
+            _respuesta.setError("Responda la Pregunta");
+            valid = false;
+        } else {
+            _respuesta.setError(null);
         }
 
         return valid;
@@ -323,7 +309,7 @@ public class formularioActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String respuesta) {
 
-            Log.e("formularioActivity", respuesta);
+            Log.e("formulario(servidor)", respuesta);
 
             if (respuesta != null){
                 if ("aceptado".equals(respuesta)){
@@ -338,6 +324,23 @@ public class formularioActivity extends AppCompatActivity
 
     }//tareaasincrona2
 
+    private void ponernotas(){
+        String nota1 = _parcial1.getText().toString();
+        String nota2 = _parcial2.getText().toString();
+        String nota3 = _parcial3.getText().toString();
+        if("".equals(nota1)) {nota1 = "0";}
+        if("".equals(nota2)) {nota2 = "0";}
+        if("".equals(nota3)) {nota3 = "0";}
+        if(nota1.contains("-")){nota1 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+        if(nota2.contains("-")){nota2 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
+        if(nota3.contains("-")){nota3 = "0";Toast.makeText(getBaseContext(), "Caracter (-) No Permitido" , Toast.LENGTH_SHORT).show();}
 
+        Float nota1float =Float.parseFloat(nota1);
+        Float nota2float =Float.parseFloat(nota2);
+        Float nota3float =Float.parseFloat(nota3);
+
+        Float definitiva = nota1float+nota2float+nota3float;
+        _definitiva.setText(String.valueOf(definitiva));
+    }
 
 }

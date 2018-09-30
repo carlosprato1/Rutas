@@ -49,13 +49,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 
-//cambio de config: Periodo: estadoServicio=false y stop AlarmManager
-//                  NIU,URL,Unidad: si Temporal Borrar.
-///////------colocar para que rastre solo cuando esta en un carro detecteActivity.
-//
-////----------Estado del Equipo------------///Para luego ahora probar
-//broadcast: encendido, apagado y bateria en otro servicio? o hacerlo por un Thread...
-
 public class Myservice extends Service implements ConnectionCallbacks,OnConnectionFailedListener,LocationListener {
     public Context context = this;
     public Handler handler = null;
@@ -268,6 +261,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
 
                 ObtenerdatosUbicacion(location);
                 if (registro){
+                    stopLocationUpdates();
                     editor.putFloat("Lat", (float)location.getLatitude());
                     editor.putFloat("Lon", (float)location.getLongitude());
                     editor.apply();
@@ -283,6 +277,7 @@ public class Myservice extends Service implements ConnectionCallbacks,OnConnecti
            if (location.getAccuracy() < 30.0F) {
 
                if (registro){
+                   stopLocationUpdates();
                    editor.putFloat("Lat", (float)location.getLatitude());
                    editor.putFloat("Lon", (float)location.getLongitude());
                    editor.apply();

@@ -65,7 +65,6 @@ public class LoginActivity extends AppCompatActivity {
         preferencias = PreferenceManager.getDefaultSharedPreferences(this);
         URLServer = preferencias.getString("ET_URL","cualquiera");
 
-
         LocationManager GPSStatus = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         assert GPSStatus != null;
         if (!GPSStatus.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -112,7 +111,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login() {
         Log.e(TAG, "Login");
-
 
         if (!validate()) {
             _loginButton.setEnabled(true);
@@ -301,6 +299,12 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString("Server_longitud",jRespRegistro.getString(4));
                 editor.putString("Server_parcial1",jRespRegistro.getString(5));
                 editor.putString("Server_autores",jRespRegistro.getString(6));
+                editor.putString("Server_auditorium",jRespRegistro.getString(7));
+                editor.putString("Server_auditorium_pregunta",jRespRegistro.getString(8));
+                editor.putString("Server_auditorium_respuesta",jRespRegistro.getString(9));
+                editor.putString("Server_parcial2",jRespRegistro.getString(10));
+                editor.putString("Server_parcial3",jRespRegistro.getString(11));
+                editor.putString("Server_bandera",jRespRegistro.getString(12));
 
                 editor.apply();
                 onLoginSuccess();

@@ -47,6 +47,7 @@ import java.util.Locale;
 
 public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback {
     SharedPreferences preferencias;
+    private String textBotton = "Evaluados";
     private GoogleMap mMap;
     private static String TAG = "mapa_splash";
     String urlserver;
@@ -64,6 +65,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     String Eparcial3[]= new String[20];
     String bandera[]= new String[20];
     String Eaddress;
+    String autor;
 
     Button evaluadores;
 
@@ -126,19 +128,17 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                 if (mMap != null) {mMap.clear();}
                 count = 1;
 
-               if ("Evaluados".equals(evaluadores.getText())){
+               if (textBotton.equals(evaluadores.getText())){
                    addEvaluados();
                    evaluadores.setText("Mi posicion");
                }else{
                    miposicion();
-                   evaluadores.setText("Evaluados");
+                   evaluadores.setText(textBotton);
                }
             }
         });
 
     }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -150,65 +150,87 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             public boolean onMarkerClick(Marker marker) {
                 int pos = mHashMap.get(marker);
 
-                if(pos != 0) {
-                    if ("0".equals(bandera[pos]) || EAuditorium[pos].equals(preferencias.getString("Server_user_email", "Vacio"))){
+                if(pos != 0) {// en caso que presione un marcados que no es el mio
 
-                        Geocoder geocoder;
-                        List<Address> addresses;
-                        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                        Double __lat = Double.parseDouble(Elat[pos]);
-                        Double __lon = Double.parseDouble(Elon[pos]);
+                    if ("Evaluador".equals(autor)) {//(login profesor) si es profesor
 
-                        String city = "";
-                        String municipio = "";
-                        String municipio2 = "";
-                        String calle = "";
-                        String casa = "";
+                        //si el correo del alumno a quien le pregunte es igual al alumno que estoy precionando(login profesor) o si esta libre
+                        if (EAuditorium[pos].equals(preferencias.getString("Server_user_email", "Vacio")) || "0".equals(bandera[pos])) {
 
-                        try {
-                            addresses = geocoder.getFromLocation(__lat, __lon, 1);
-
-                            if(addresses.get(0).getLocality() != null){city = addresses.get(0).getLocality();}
-                            if(addresses.get(0).getSubLocality() != null){municipio = ", "+addresses.get(0).getSubLocality();}
-                            if(addresses.get(0).getSubAdminArea() != null){municipio2 = ", "+addresses.get(0).getSubAdminArea();}
-                            if(addresses.get(0).getThoroughfare() != null){calle = ", "+addresses.get(0).getThoroughfare();}
-                            if(addresses.get(0).getSubThoroughfare() != null){casa = ", "+addresses.get(0).getSubThoroughfare();}
-
-                            Eaddress =city+municipio+municipio2+calle+casa;
-                            if (", ".equals(Eaddress.substring(0,2))){Eaddress = Eaddress.substring(2);}
-
-                        }catch (IOException ioE){
-                            Log.e(TAG, "geocoder.getFromLocation (ERROR) :" + ioE);
-                            Eaddress = "Direccion no disponible";
-                        }catch (IndexOutOfBoundsException exp){
-                            Log.e(TAG, "geocoder.getFromLocation (ERROR) :" + exp);
-                            Eaddress = "Direccion no disponible";
+                            lanzarActivityformulario(pos);
+                        }else{
+                            Toast.makeText(getBaseContext(), Ename[pos] + " Esta pendiente por Responder a otro " + autor, Toast.LENGTH_LONG).show();
                         }
 
-                        Intent intent = new Intent(getApplicationContext(), formularioActivity.class)
-                                .putExtra("eva_name",Ename[pos])
-                                .putExtra("eva_email",EEmail[pos] )
-                                .putExtra("eva_audito",EAuditorium[pos])
-                                .putExtra("eva_pregun",EPregunta[pos])
-                                .putExtra("eva_resp",ERespuesta[pos])
-                                .putExtra("eva_par1",Eparcial1[pos])
-                                .putExtra("eva_par2",Eparcial2[pos])
-                                .putExtra("eva_par3",Eparcial3[pos])
-                                .putExtra("eva_address",Eaddress);
-
-                        startActivity(intent);
                     }else{
-                        Toast.makeText(getBaseContext(), Ename[pos]+" Esta pendiente por Responder a otro Evaluador", Toast.LENGTH_LONG).show();
+                        //(login alumno)
+                         if (EEmail[pos].equals(preferencias.getString("Server_auditorium", "Vacio"))){
+
+                             lanzarActivityformulario(pos);
+                         }else{
+
+                             Toast.makeText(getBaseContext(), Ename[pos] + " No te ha asignado Ninguna Pregunta En Este momento ", Toast.LENGTH_SHORT).show();
+                         }
                     }
-
                 }
-
                 return false;
-
             }
         });
 
     }
+
+    private void lanzarActivityformulario (int pos){
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        Double __lat = Double.parseDouble(Elat[pos]);
+        Double __lon = Double.parseDouble(Elon[pos]);
+        String city = "";
+        String municipio = "";
+        String municipio2 = "";
+        String calle = "";
+        String casa = "";
+        try {
+            addresses = geocoder.getFromLocation(__lat, __lon, 1);
+            if (addresses.get(0).getLocality() != null) {
+                city = addresses.get(0).getLocality();
+            }
+            if (addresses.get(0).getSubLocality() != null) {
+                municipio = ", " + addresses.get(0).getSubLocality();
+            }
+            if (addresses.get(0).getSubAdminArea() != null) {
+                municipio2 = ", " + addresses.get(0).getSubAdminArea();
+            }
+            if (addresses.get(0).getThoroughfare() != null) {
+                calle = ", " + addresses.get(0).getThoroughfare();
+            }
+            if (addresses.get(0).getSubThoroughfare() != null) {
+                casa = ", " + addresses.get(0).getSubThoroughfare();
+            }
+            Eaddress = city + municipio + municipio2 + calle + casa;
+            if (", ".equals(Eaddress.substring(0, 2))) {
+                Eaddress = Eaddress.substring(2);
+            }
+        } catch (IOException ioE) {
+            Log.e(TAG, "geocoder.getFromLocation (ERROR) :" + ioE);
+            Eaddress = "Direccion no disponible";
+        } catch (IndexOutOfBoundsException exp) {
+            Log.e(TAG, "geocoder.getFromLocation (ERROR) :" + exp);
+            Eaddress = "Direccion no disponible";
+        }
+        Intent intent = new Intent(getApplicationContext(), formularioActivity.class)
+                .putExtra("eva_name", Ename[pos])
+                .putExtra("eva_email", EEmail[pos])
+                .putExtra("eva_audito", EAuditorium[pos])
+                .putExtra("eva_pregun", EPregunta[pos])
+                .putExtra("eva_resp", ERespuesta[pos])
+                .putExtra("eva_par1", Eparcial1[pos])
+                .putExtra("eva_par2", Eparcial2[pos])
+                .putExtra("eva_par3", Eparcial3[pos])
+                .putExtra("eva_address", Eaddress);
+        startActivity(intent);
+    }
+
     public void miposicion(){
         miposicion = true;
         urlserver = preferencias.getString("ET_URL", "cualquiera");
@@ -263,26 +285,32 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         @Override
         protected void onPostExecute(Bitmap img) {
             if (img != null) {
-                if (miposicion) { // profesor
+                if (miposicion) { // mi pocision despues de Login Alumno o profesor
                     //Double lat = Double.parseDouble(preferencias.getString("Server_latitud", "0.1"));
                     //Double lon = Double.parseDouble(preferencias.getString("Server_longitud", "0.1"));
                     Float lat = preferencias.getFloat("Lat", 0.1F);
                     Float lon = preferencias.getFloat("Lon", 0.1F);
                     String name = preferencias.getString("Server_name", "Vacio");
-                    String autor = preferencias.getString("Server_autores", "vacio");
+                    autor = preferencias.getString("Server_autores", "vacio");
                     String nota = preferencias.getString("Server_parcial1", "0");
+
+                    if  ("Evaluado".equals(autor)){
+                        textBotton = "Evaluadores";
+                        evaluadores.setText(textBotton);
+                    }
+
 
                     LatLng pos = new LatLng(lat, lon);
                     Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(pos)
                             .title(name)
-                            .snippet("Evaluador")
+                            .snippet(autor)
                             .icon(BitmapDescriptorFactory.fromBitmap(img)));
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(6F));
                     mHashMap.put(marker,0);
-                }else{ // alumno
+                }else{ // coloca markadores de  Evaluadores en caso de ser elumno y Evaluados de ser profesor
 
                     LatLng pos = new LatLng(Double.parseDouble(Elat[count]), Double.parseDouble(Elon[count]));
                     Marker marker = mMap.addMarker(new MarkerOptions()
@@ -303,7 +331,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
     public void addEvaluados() {
         if (this.mMap != null) {
-            new TareaAsincrona3().execute(urlserver, "/controlador/reporteMapa.php","evaluados");
+            new TareaAsincrona3().execute(urlserver, "/controlador/reporteMapa.php",autor);
         }
 
     }//addEvaluadores
@@ -366,7 +394,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                 try {
                     JSONArray jrespuestamapa = new JSONArray(evaluados);
                     if ("Correcto".equals(jrespuestamapa.getString(0))) {
-
 
                         for (int i = 1; i < jrespuestamapa.length(); i++) {
 
